@@ -11,7 +11,7 @@ env:
   DOCKERHUB_USERNAME: dexterliu3
 
 jobs:
-  docker: # jobs下的任务
+  docker: # jobs下的任务(job)
     runs-on: ubuntu-latest
     steps: # 具体执行的步骤
       - name: Checkout
@@ -44,7 +44,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           # tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
-          tags: ${{ env.DOCKERHUB_USERNAME }}/backend:$sha_short
+          tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ env.sha_short }}
       - name: Build frontend and push
         # uses: docker/build-push-action@v3
         uses: docker/build-push-action@v6
@@ -53,7 +53,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           # tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
-          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:$sha_short
+          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ env.sha_short }}
       # - name: Update helm values.yaml
       #   uses: fjogeleit/yaml-update-action@main
       #   with:
