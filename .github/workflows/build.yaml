@@ -1,5 +1,7 @@
+# 工作流名称
 name: build
 
+# 在什么时候触发
 on:
   push:
     branches:
@@ -9,37 +11,49 @@ env:
   DOCKERHUB_USERNAME: dexterliu3
 
 jobs:
-  docker:
+  docker: # jobs下的任务
     runs-on: ubuntu-latest
-    steps:
+    steps: # 具体执行的步骤
       - name: Checkout
         uses: actions/checkout@v3
+      # - name: Set outputs
+      #   id: vars
+      #   run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      # update new "set output by dexter"
       - name: Set outputs
         id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        # uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        # uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        # uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build backend and push
-        uses: docker/build-push-action@v3
+        # uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: backend
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
+          # tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/backend:$sha_short
       - name: Build frontend and push
-        uses: docker/build-push-action@v3
+        # uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: frontend
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+          # tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:$sha_short
       # - name: Update helm values.yaml
       #   uses: fjogeleit/yaml-update-action@main
       #   with:
