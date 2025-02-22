@@ -1,0 +1,27 @@
+name: Build and Push Helm Chart
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build-and-push-chart:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # 拉取代码到工作目录
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v1  # 设置 Helm 环境
+
+    - name: Package Helm Chart
+      run: helm package ./helm  # 打包 Helm Chart，生成 .tgz 文件
+
+    - name: Push Helm Chart to GitHub Package
+      run: helm push ./kubernetes-example-0.1.0.tgz oci://ghcr.io/dexter-liu/helm  # 推送 Helm Chart 到 GitHub Package Registry
+      env:
+        HELM_EXPERIMENTAL_OCI: 1
+      with:
+        password: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub Token 进行认证和授权
