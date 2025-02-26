@@ -13,7 +13,7 @@ env:
 jobs:
   docker: # jobs下的任务(job)
     runs-on: ubuntu-latest
-    steps: # 具体执行的步骤
+    steps: # 具体执行的步骤, 使用"-name"来命名步骤
       - name: Checkout
         uses: actions/checkout@v3
       # - name: Set outputs
@@ -54,15 +54,17 @@ jobs:
           platforms: linux/amd64,linux/arm64
           # tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
           tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ env.sha_short }}
-      # - name: Update helm values.yaml
-      #   uses: fjogeleit/yaml-update-action@main
-      #   with:
-      #     valueFile: 'helm/values.yaml'
-      #     commitChange: true
-      #     branch: main
-      #     message: 'Update Image Version to ${{ steps.vars.outputs.sha_short }}'
-      #     changes: |
-      #       {
-      #         "backend.tag": "${{ steps.vars.outputs.sha_short }}",
-      #         "frontend.tag": "${{ steps.vars.outputs.sha_short }}"
-      #       }
+      - name: Update helm values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'helm/values.yaml'
+          commitChange: true
+          branch: main
+          message: 'Update Image Version to ${{ env.sha_short }}'
+          changes: |
+            {
+              #"backend.tag": "${{ steps.vars.outputs.sha_short }}"
+              "backend.tag": "${{ env.sha_short }}",
+              #"frontend.tag": "${{ steps.vars.outputs.sha_short }}"
+              "frontend.tag": "${{ env.sha_short }}"
+            }
