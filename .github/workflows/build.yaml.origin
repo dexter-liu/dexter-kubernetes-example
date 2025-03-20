@@ -8,9 +8,9 @@ on:
       - "main"
 
 env:
-  ALIYUN_USERNAME: dexterliu
+  DOCKERHUB_USERNAME: dexterliu3
 
-jobs: # 多个job可以并行，也可以串行
+jobs:
   docker: # jobs下的任务(job)
     runs-on: ubuntu-latest
     steps: # 具体执行的步骤, 使用"-name"来命名步骤
@@ -34,8 +34,8 @@ jobs: # 多个job可以并行，也可以串行
         # uses: docker/login-action@v2
         uses: docker/login-action@v3
         with:
-          username: ${{ env.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build backend and push
         # uses: docker/build-push-action@v3
         uses: docker/build-push-action@v6
@@ -43,8 +43,8 @@ jobs: # 多个job可以并行，也可以串行
           context: backend
           push: true
           platforms: linux/amd64,linux/arm64
-          # tags: ${{ env.ALIYUN_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
-          tags: ${{ env.ALIYUN_USERNAME }}/backend:${{ env.sha_short }}
+          # tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/backend:${{ env.sha_short }}
       - name: Build frontend and push
         # uses: docker/build-push-action@v3
         uses: docker/build-push-action@v6
@@ -52,17 +52,17 @@ jobs: # 多个job可以并行，也可以串行
           context: frontend
           push: true
           platforms: linux/amd64,linux/arm64
-          # tags: ${{ env.ALIYUN_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
-          tags: ${{ env.ALIYUN_USERNAME }}/frontend:${{ env.sha_short }}
-      # - name: Update helm values.yaml
-      #   uses: fjogeleit/yaml-update-action@main
-      #   with:
-      #     valueFile: 'helm/values.yaml'
-      #     commitChange: true
-      #     branch: main
-      #     message: 'Update Image Version to ${{ env.sha_short }}'
-      #     changes: |
-      #       {
-      #         "backend.tag": "${{ env.sha_short }}",
-      #         "frontend.tag": "${{ env.sha_short }}"
-      #       }
+          # tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ steps.vars.outputs.sha_short }}
+          tags: ${{ env.DOCKERHUB_USERNAME }}/frontend:${{ env.sha_short }}
+      - name: Update helm values.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'helm/values.yaml'
+          commitChange: true
+          branch: main
+          message: 'Update Image Version to ${{ env.sha_short }}'
+          changes: |
+            {
+              "backend.tag": "${{ env.sha_short }}",
+              "frontend.tag": "${{ env.sha_short }}"
+            }
